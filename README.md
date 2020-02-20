@@ -29,4 +29,4 @@ Ansible is sponsored by Ansible.Inc.
 Copyright 2016 Shingo Kitayama. All rights reserved.
 
 ## Annotation
-This is a personal reference code, it is not an official opinion of my organization.
+This is a personal reference code, it is not an official opinion of my organization.# ansible-
