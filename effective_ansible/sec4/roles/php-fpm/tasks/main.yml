@@ -1,0 +1,6 @@
+---
+# tasks file for ./roles/php-fpm
+
+- include_tasks: roles/php-fpm/tasks/check_install.yml
+- include_tasks: roles/php-fpm/tasks/install.yml
+- include_tasks: roles/php-fpm/tasks/configure.yml

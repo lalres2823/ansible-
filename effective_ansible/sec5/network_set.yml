@@ -1,0 +1,79 @@
+---
+- hosts: network
+  gather_facts: no
+
+  tasks:
+##### Cisco IOS 用block の開始#####
+  - name: ios block
+    block:
+## (1) Cisco IOS NTP サーバーの設定
+      - name: set ios ntp
+        ios_ntp:
+          server: "{{ item }}"
+        loop: "{{ ntp.servers }}"
+        notify: save
+        
+## (2) Cisco IOS SNMP の設定
+      - name: set ios snmp
+        ios_config:
+          src: ios_snmp.j2
+        notify: save
+
+## (3) Cisco IOS Syslog サーバーの設定
+      - name: set ios syslog
+        ios_logging:
+          dest: host
+          name: "{{ item }}"
+        loop: "{{ syslog.servers }}"
+        notify: save
+
+## (4) Cisco IOS ユーザーの設定
+      - name: set ios user
+        ios_user:
+          name: "{{ item.name }}"
+          privilege: "{{ item.privilege }}"
+          sshkey: "{{ lookup('file', item.sshkey) }}"
+        loop: "{{ user }}"
+        notify: save
+
+    when: ansible_network_os == "ios"
+##### Cisco IOS 用block の終了#####
+
+##### Juniper Junos 用block の開始#####
+  - name: junos block
+    block:
+## (5) Juniper Junos NTP サーバーの設定
+      - name: set junos ntp
+        junos_config:
+          src: junos_ntp.j2
+
+## (6) Juniper Junos SNMP の設定
+      - name: set junos snmp
+        junos_config:
+          src: junos_snmp.j2
+
+## (7) Juniper Junos Syslog サーバーの設定
+      - name: set junos syslog
+        junos_logging:
+          dest: host
+          name: "{{ item }}"
+          facility: any
+          level: info
+        loop: "{{ syslog.servers }}"
+
+## (8) Juniper Junos ユーザーの設定
+      - name: set junos user
+        junos_user:
+          name: "{{ item.name }}"
+          sshkey: "{{ lookup('file', item.sshkey) }}"
+          role: "{{ item.role }}"
+        loop: "{{ user }}"
+
+    when: ansible_network_os == "junos"
+##### Juniper Junos 用block の終了#####
+
+  handlers:
+## (9) Cisco IOS コンフィグの保存
+    - name: save
+      ios_config:
+        save_when: always

@@ -1,0 +1,33 @@
+---
+- name: Rolling Update for Nginx
+  hosts: apps
+  become: true
+  serial: 1
+
+  vars:
+    cluster_service: app_cluster
+
+  pre_tasks:
+  - name: Disable WordPress service
+    haproxy:
+      state: disabled
+      host: "{{ inventory_hostname }}"
+      backend: "{{ cluster_service }}"
+      socket: /var/run/haproxy.sock
+      wait: yes
+    delegate_to: "{{ item }}"
+    loop: "{{ groups.lbs }}"
+
+  roles:
+    - { role: nginx, tags: nginx}
+
+  post_tasks:
+  - name: Re-enable WordPress service
+    haproxy:
+      state: enabled
+      host: "{{ inventory_hostname }}"
+      backend: "{{ cluster_service }}"
+      socket: /var/run/haproxy.sock
+      wait: yes
+    delegate_to: "{{ item }}"
+    loop: "{{ groups.lbs }}"

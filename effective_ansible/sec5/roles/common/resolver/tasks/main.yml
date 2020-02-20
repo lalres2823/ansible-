@@ -1,0 +1,37 @@
+---
+# tasks file for ./roles/resolver
+
+- name: main / Set hostname 
+  hostname:
+    name: "{{ inventory_hostname }}"
+
+- name: main / Set resolver setting
+  ini_file:
+    dest: /etc/NetworkManager/NetworkManager.conf
+    section: main
+    option: dns
+    value: none
+
+- name: main / Deploy nsswitch.conf
+  copy:
+    src: nsswitch.conf
+    dest: /etc/nsswitch.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: main / Deploy resolv.conf
+  copy:
+    src: resolv.conf
+    dest: /etc/resolv.conf
+    owner: root
+    group: root
+    mode: 0644
+
+- name: main / Deploy hosts file
+  template:
+    src: hosts.j2
+    dest: /etc/hosts
+    owner: root
+    group: root
+    mode: 0644

@@ -1,0 +1,8 @@
+{% for c in snmp.community %}
+{% if c.read_write %}
+{% set auth = "read-write" %}
+{% else %}
+{% set auth = "read-only" %}
+{% endif %}
+set snmp community {{ c.name }} authorization {{ auth }} 
+{% endfor %}

@@ -1,0 +1,7 @@
+127.0.0.1 localhost localhost.ansible.local
+
+{% for host in groups.all if host != 'localhost' %}
+{% if hostvars[host].ansible_host is defined %}
+{{ hostvars[host].ansible_host }} {{ host }} {{ host }}.ansible.local
+{% endif %}
+{% endfor %}

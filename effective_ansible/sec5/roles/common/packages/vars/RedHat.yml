@@ -1,0 +1,5 @@
+---
+# vars file for ./roles/packages
+
+required_packages:
+  - "@Development Tools"

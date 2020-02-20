@@ -1,0 +1,11 @@
+---
+# tasks file for ./roles/locale
+- name: main / Setup timezone
+  timezone:
+    name: "{{ locale_timezone }}"
+
+- name: main / Setup locale
+  command: localectl set-locale LANG={{ locale_locale }}
+
+- name: main / Setup keymap
+  command: localectl set-keymap {{ locale_keymap }}

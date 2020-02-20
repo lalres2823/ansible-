@@ -1,0 +1,11 @@
+---
+ansible_connection: netconf
+ansible_network_os: junos
+ansible_user: junosuser
+ansible_password: junosp@ss99
+
+show_commands:
+  - show system uptime
+  - show version
+  - show interfaces
+  - show configuration

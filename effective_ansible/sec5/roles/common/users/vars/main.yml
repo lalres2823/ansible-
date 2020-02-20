@@ -1,0 +1,14 @@
+---
+# vars file for ./roles/users
+user_newusers:
+  user01:
+    detail: "Administration User 01"
+    pass: "{{ 'ansible' |password_hash('sha256') }}"
+    groups: sys
+    priv: admin
+
+  user02:
+    detail: "Operation User 02"
+    pass: "{{ 'ansible' |password_hash('sha256') }}"
+    groups: users
+    priv: member

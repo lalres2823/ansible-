@@ -1,0 +1,27 @@
+---
+ntp:
+  servers:
+    - 192.168.100.101
+    - 192.168.100.102
+
+snmp:
+  community:
+    - name: public
+      read_write: no
+    - name: secret
+      read_write: yes
+
+syslog:
+  servers:
+    - 192.168.100.201
+    - 192.168.100.202
+
+user:
+  - name: admin01
+    sshkey: ~/user_keys/admin01_id_rsa.pub
+    privilege: 15
+    role: super-user
+  - name: admin02
+    sshkey: ~/user_keys/admin02_id_rsa.pub
+    privilege: 15
+    role: super-user

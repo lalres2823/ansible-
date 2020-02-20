@@ -1,0 +1,15 @@
+---
+# handlers file for ./roles/keepalived
+
+- name: Reload keepalived
+  command: firewall-cmd --reload
+
+- name: Reload rsyslog
+  service:
+    name: rsyslog
+    state: restarted
+
+- name: Reload keepalived
+  service:
+    name: keepalived
+    state: reloaded

@@ -1,0 +1,6 @@
+---
+# tasks file for ./roles/mariadb
+
+- include_tasks: roles/mariadb/tasks/check_install.yml
+- include_tasks: roles/mariadb/tasks/install.yml
+- include_tasks: roles/mariadb/tasks/configure.yml

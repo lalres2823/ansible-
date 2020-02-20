@@ -1,0 +1,3 @@
+{% for server in ntp.servers %}
+set system ntp server {{ server }}
+{% endfor %}

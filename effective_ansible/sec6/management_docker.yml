@@ -1,0 +1,69 @@
+---
+- name: Management Docker
+  hosts: localhost
+  vars:
+    docker_hosts:
+      - '192.168.10.11:2376'
+      - '192.168.10.12:2376'
+    required_docker_images: "ansible/centos7-ansible"
+    tmp_dir: docker_repo
+
+  tasks:
+    - name: Create docker local network
+      docker_network:
+        docker_host: "{{ item }}"
+        name: ansible_network
+      with_items: "{{ docker_hosts }}"
+
+    - name: Pull docker image
+      docker_image:
+        docker_host: "{{ item }}"
+        name: "{{ required_docker_images }}"
+      with_items:
+        - "{{ docker_hosts }}"
+
+    - name: Get Nginx Dockerfile
+      git:
+        repo: https://github.com/nginxinc/docker-nginx.git
+        dest: "{{ tmp_dir }}"
+
+    - name: Build Dockerfile
+      docker_image:
+        docker_host: "{{ item }}"
+        path: "{{ tmp_dir }}/stable/stretch"
+        name: nginxinc/docker-nginx
+        tag: v1
+      with_items: "{{ docker_hosts }}"
+
+    - name: Inspect docker image
+      docker_image_facts:
+        docker_host: "{{ item }}"
+        name: nginxinc/docker-nginx
+      with_items: "{{ docker_hosts }}"
+      register: image_fact
+
+    - name: Show docker image facts
+      debug:
+        var: image_fact.results
+
+    - name: Run nginx docker container
+      docker_container:
+        docker_host: "{{ item }}"
+        name: "nginx-1"
+        image: "nginxinc/docker-nginx:v1"
+        networks:
+          - name: ansible_network
+        purge_networks: yes
+        ports:
+          - "8080:80"
+      with_items: "{{ docker_hosts }}"
+
+    - name: Run ansible docker container
+      docker_container:
+        docker_host: "{{ item }}"
+        name: "ansible-1"
+        image: "{{ required_docker_images }}"
+        command: /bin/bash
+        tty: yes
+        interactive: yes
+      with_items: "{{ docker_hosts }}"

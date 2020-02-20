@@ -1,0 +1,8 @@
+---
+# vars file for ./roles/keepalived
+
+keepalived_vip_interfaces:
+  - { address: "{{ hostvars.db_v1i.ansible_host }}", device: 'ens160' }
+  
+keepalived_target: "{{ groups['databases'] }}"
+keepalived_offset: 20

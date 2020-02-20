@@ -1,0 +1,5 @@
+---
+# defaults file for ./roles/keepalived
+
+vip_interfaces:
+  - { address: "0.0.0.0", device: ens160}

@@ -1,0 +1,91 @@
+---
+- name: Setup environment for OpenStack
+  hosts: localhost
+  gather_facts: false
+  vars:
+    cloud_credential: mycloud
+    instance:
+      name: test01
+      key: ansible_key
+      sec_name: int_sec01
+      ext_ip: 10.0.0.11
+    internal_network:
+      name: int_net
+      subnet_name: int_sub
+    external_network:
+      name: ext_net
+      router_name: router01
+	  
+  tasks:
+    - name: Deploy network
+      os_network:
+        cloud: "{{ cloud_credential }}"
+        state: present
+        name: "{{ internal_network.name }}"
+
+    - name: Setup subnet on the specified network
+      os_subnet:
+        cloud: "{{ cloud_credential }}"
+        state: present
+        name: "{{ internal_network.subnet_name }}"
+        network_name: "{{ internal_network.name }}"
+        cidr: 192.168.0.0/24
+        gateway_ip: 192.168.0.1
+        dns_nameservers: 192.168.0.1
+
+    - name: Create virtual router
+      os_router:
+        cloud: "{{ cloud_credential }}"
+        state: present
+        name: "{{ external_network.router_name }}"
+        network: "{{ external_network.name }}"
+        interfaces: "{{ internal_network.subnet_name }}"
+		
+    - name: Create security groups
+      os_security_group:
+        cloud: "{{ cloud_credential }}"
+        state: present
+        name: "{{ instance.sec_name }}"
+        description: "security group for internal network"
+
+    - name: Create TCP rule
+      os_security_group_rule:
+        cloud: "{{ cloud_credential }}"
+        state: present
+        security_group: "{{ instance.sec_name }}"
+        protocol: tcp
+        remote_ip_prefix: 0.0.0.0/0
+
+    - name: Register a key pair
+      os_keypair:
+        cloud: "{{ cloud_credential }}"
+        state: present
+        name: "{{ instance.key }}"
+        public_key_file: /home/ansible/.ssh/id_rsa.pub
+
+    - name: Deploy an instance
+      os_server:
+        cloud: "{{ cloud_credential }}"
+        state: present
+        name: "{{ instance.name }}"
+        image: CentOS-7-x86_64-GenericCloud
+        key_name: "{{ instance.key }}"
+        flavor: 2
+        network: "{{ internal_network.name }}"
+        security_groups: "{{ instance.sec_name }}"
+        wait: yes
+      register: instance_result
+
+    - name: Attach Floating IP
+      os_floating_ip:
+        cloud: "{{ cloud_credential }}"
+        state: present
+        reuse: yes
+        fixed_address: "{{ instance.ext_ip }}"
+        server: "{{ instance.name }}"
+        network: "{{ external_network.name }}"
+
+    - name: Wait for SSH on the Instance
+      wait_for
+        port: 22
+        host: "{{ instance.ext_ip }}"

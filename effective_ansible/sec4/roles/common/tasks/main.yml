@@ -1,0 +1,30 @@
+---
+# tasks file for ./roles/common
+- name: configure / Selinux permissived
+  selinux:
+    policy: targeted
+    state: permissive
+  when : ansible_selinux.config_mode == 'enforcing'
+
+- name: configure / Disable ipv6 interface
+  sysctl:
+    state: present
+    name: "{{ item }}"
+    value: '1'
+    sysctl_set: yes
+    reload: yes
+  loop:
+    - net.ipv6.conf.all.disable_ipv6
+    - net.ipv6.conf.default.disable_ipv6
+
+- name: configure / Update yum packages
+  yum:
+    name: '*'
+    state: latest
+    update_cache: yes
+
+- name: configure / Import EPEL Repository
+  yum:
+    name: epel-release
+    state: latest
+    update_cache: yes

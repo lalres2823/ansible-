@@ -1,0 +1,9 @@
+---
+# vars file for ./roles/networks
+
+network_packages:
+  - NetworkManager-glib
+  - NetworkManager-libnm-devel.x86_64
+  - nm-connection-editor.x86_64
+  - libsemanage-python
+  - policycoreutils-python
